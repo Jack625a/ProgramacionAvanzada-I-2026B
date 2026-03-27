@@ -5,7 +5,7 @@ from multiprocessing import Process,Queue
 from telegram import Update
 from telegram.ext import ApplicationBuilder, MessageHandler, filters, ContextTypes
 
-tokenTelegram="8748613397:AAGopUqSUr8Y0EwQXURh9iu1DoTQmuuLEzI"
+tokenTelegram=""
 
 def procesar(colaEntrada,colaSalida):
     while True:
