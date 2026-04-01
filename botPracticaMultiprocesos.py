@@ -4,24 +4,34 @@ import os
 from multiprocessing import Process
 from telegram import Update
 from telegram.ext import ApplicationBuilder,MessageHandler,filters,ContextTypes
+import uuid #Generar id aleatorios 
 
 tokenTelegram=""
 
 def procesarImagen(rutaEntrada,rutaSalida):
-    #cargar el modelo de reconocimiento facial
-    reconocimiento=cv2.CascadeClassifier(
-        cv2.data.haarcascades+'haarcascade_frontalface_default.xml'
-    )
-    #Leer la imagen
-    imagen=cv2.imread(rutaEntrada)
-    grises=cv2.cvtColor(imagen,cv2.COLOR_BGR2GRAY)
-    rostros=reconocimiento.detectMultiScale(grises,1.1,5)
-    
-    #dibujar las detecciones
-    for (x,y,w,h) in rostros:
-        cv2.rectangle(imagen,(x,y),(x+w,y+h),(0,255,0),2)
-    cv2.imwrite(rutaSalida,imagen)
-    print("Procesamiento terminado")
+    try:
+        #cargar el modelo de reconocimiento facial
+        reconocimiento=cv2.CascadeClassifier(
+            cv2.data.haarcascades+'haarcascade_frontalface_default.xml'
+        )
+            #Leer la imagen
+        imagen=cv2.imread(rutaEntrada)
+        if imagen is None:
+            print("Error al cargar la imagen")
+            return False
+
+        grises=cv2.cvtColor(imagen,cv2.COLOR_BGR2GRAY)
+        rostros=reconocimiento.detectMultiScale(grises,1.1,5)
+        
+        #dibujar las detecciones
+        for (x,y,w,h) in rostros:
+            cv2.rectangle(imagen,(x,y),(x+w,y+h),(0,255,0),2)
+        cv2.imwrite(rutaSalida,imagen)
+        print("Procesamiento terminado")
+        return True
+    except Exception as error:
+        print("Error al procesar ",error)
+        return False
 
     #ESCALAS DE DETECCION
     #1.1=> Mas preciso(detecta mas rostros pequeños, pero es mas lento y mas uso de recursos)
@@ -36,9 +46,10 @@ def procesarImagen(rutaEntrada,rutaSalida):
 async def obtenerImagen(update:Update,context:ContextTypes.DEFAULT_TYPE):
     foto=update.message.photo[-1]
     archivo=await foto.get_file()
+    nombre=str(uuid.uuid4())
 
-    ruta_Entrada="entrada.jpg"
-    ruta_Salida="salida.jpg"
+    ruta_Entrada=f"entrada_{nombre}.jpg"
+    ruta_Salida=f"salida_{nombre}.jpg"
     await archivo.download_to_drive(ruta_Entrada)
     #Crear el proceso
     proceso=Process(target=procesarImagen,args=(ruta_Entrada,ruta_Salida))
