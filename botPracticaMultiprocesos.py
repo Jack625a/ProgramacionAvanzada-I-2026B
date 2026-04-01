@@ -57,6 +57,12 @@ async def obtenerImagen(update:Update,context:ContextTypes.DEFAULT_TYPE):
     proceso.join()
     await update.message.reply_photo(photo=open(ruta_Salida,"rb"))
 
+    #Eliminacion de los archivos temporales 
+    if os.path.exists(ruta_Entrada):
+        os.remove(ruta_Entrada)
+    if os.path.exists(ruta_Salida):
+        os.remove(ruta_Salida)
+
 def main():
     app=ApplicationBuilder().token(tokenTelegram).build()
     app.add_handler(MessageHandler(filters.PHOTO,obtenerImagen))
