@@ -24,7 +24,7 @@ def enviarMensaje(cliente):
         cliente.send(mensaje.encode("utf-8"))
 
 #Paso 5. Funcion para configiraConexionServidor
-def inicar():
+def iniciar():
     cliente=socket.socket(socket.AF_INET,socket.SOCK_STREAM) #IP VERSION 4
     cliente.connect((host,puerto))
     print("Conectado al chat...")
@@ -32,4 +32,4 @@ def inicar():
     hiloRecibirMensaje.start()
     enviarMensaje(cliente)
 
-inicar()
+iniciar()

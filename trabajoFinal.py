@@ -1,0 +1,83 @@
+from flask import Flask
+from flask_socketio import SocketIO, send
+
+#Paso 1. Crear el servidor
+app=Flask(__name__)
+
+#Paso 2. Activar el socket
+socket=SocketIO(app,cors_allowed_origins="*")
+
+#Paso 3. Crear la ruta principal
+
+@app.route("/")
+def inicio():
+    return """
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Chat en tiempo real PA</h1>
+    <input type="text" placeholder="Ingrese su nombre: " id="nombre">
+    <button id="botonIngresar">Ingresar</button>
+    <br>
+    <div id="chat"></div>
+    <input type="text" placeholder="Ingrese su mensaje" id="mensaje">
+    <button id="BotonEnviar">Enviar</button>
+
+    <script>
+        //Paso 1. conexion con el socket
+        var socket=io();
+
+        var nombreUsuario="";
+
+        //Paso 2. Crear la funcion para guardar el nombre
+        function guardarNombre(){
+            var nombre=document.getElementById("nombre");
+            if(nombre.value.trim()===""){
+                alert("Debe ingresar su nombre para continuar...");
+                return;
+            }
+            nombreUsuario=nombre.value;
+            nombre.disable=true;
+
+
+        }
+
+        //Paso 3. Enviar Mensaje
+        function enviarMensaje(){
+            var mensaje=document.getElementById("mensaje");
+            var mensajeEnviar=mensaje.value;
+            socket.send(
+                nombreUsuario+": "+mensajeEnviar
+            )
+            mensaje.value="";
+        }
+
+        //Paso 4. RECIBIR LOS MENSAJES
+        socket.on("message", function(mensaje){
+            var chat=document.getElementById("chat");
+            
+        }
+    )
+    </script>
+</body>
+</html>
+ """
+
+@socket.on("message")
+def recibirMensaje(mensaje):
+    print("Mensaje recibido ",mensaje)
+    send(mensaje,broadcast=True)
+
+if __name__=="__main__":
+    puerto=5000
+    socket.run(
+        app,
+        host="0.0.0.0",
+        port=puerto,
+        debug=True
+    )
